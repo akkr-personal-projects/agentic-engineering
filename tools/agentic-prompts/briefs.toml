@@ -1,0 +1,163 @@
+# Scope descriptions ("briefs") for known disciplines, keyed by slug.
+# The slug is the name in lower case with non-alphanumerics replaced by "-":
+#   "Spec / Plan Engineering" -> spec-plan-engineering
+# A discipline listed in config.toml without an entry here still works: its prompts ask the agent to define the scope.
+# Fields used in prompts:
+#   scope, research_focus, starting_points -> research (-1)
+#   expected_artifacts                     -> plan (-2)
+#   acceptance                             -> implementation (-3), as the end-to-end scenario
+# starting_points are hints from earlier research; prompts tell the agent to verify them against current official docs.
+
+# --- cross-cutting ---
+
+[prompt-engineering]
+[prompt-engineering.en]
+scope = "What to say in a turn and in instruction files: goal, context, constraints, done-when; verification criteria; explore-plan-code; tone and emphasis; reusable prompt templates."
+[prompt-engineering.ja]
+scope = "1 ターンと指示ファイルで何を伝えるか: ゴール、コンテキスト、制約、完了条件。検証基準。探索→計画→実装。口調と強調。再利用できるプロンプトのテンプレート。"
+
+[context-engineering]
+[context-engineering.en]
+scope = "What is in the context window, when and for how long: loading tiers, just-in-time retrieval, isolation in subagents, compaction, filtering tool output, prompt caching, measuring usage."
+[context-engineering.ja]
+scope = "コンテキストウィンドウに何が、いつ、どれだけの間あるか: 読み込みの階層、必要時の取得、サブエージェントでの隔離、コンパクション、ツール出力のフィルタ、プロンプトキャッシュ、使用量の計測。"
+
+[memory-engineering]
+[memory-engineering.en]
+scope = "What survives across sessions and how it comes back: instruction files vs agent-written memory, indexes and topic files, promotion, pruning, memory security, session resume vs restart, working-memory files for long tasks."
+[memory-engineering.ja]
+scope = "セッションをまたいで何が残り、どう戻ってくるか: 指示ファイルとエージェントが書くメモリ、索引とトピックファイル、昇格、削除、メモリのセキュリティ、セッションの再開とやり直し、長いタスクの作業記憶ファイル。"
+
+[knowledge-engineering]
+[knowledge-engineering.en]
+scope = "What the agent can consult and how it is built, packaged, validated and shared: the code as ground truth, Agent Skills and progressive disclosure, rules, docs, external sources, plugins, evaluation, ownership and supply-chain safety."
+[knowledge-engineering.ja]
+scope = "エージェントが参照できる知識と、その作り方・パッケージ化・検証・共有: 正解の源としてのコード、Agent Skills と段階的な読み込み、ルール、ドキュメント、外部の情報源、プラグイン、評価、担当者とサプライチェーンの安全。"
+
+# --- methods ---
+
+[spec-plan-engineering]
+[spec-plan-engineering.en]
+scope = "Deciding before building. Specs (what, why, out of scope, verification) and plans (files, steps, checks) as files that outlive the conversation and are the source of truth during implementation; the interview → spec → plan → implement → verify handoff; keeping plans in sync; ADRs."
+research_focus = "Spec and plan formats agents follow well; plan modes per CLI and how plans survive compaction; interview techniques; task granularity; checkable acceptance criteria; feature lists in JSON; plan review in a fresh context; when to skip planning."
+starting_points = "Claude Code plan mode (Shift+Tab, --permission-mode plan), Ctrl+G, plan-file re-injection after compaction, /goal, AskUserQuestion; Codex /plan, /goal, \"Implement Milestone 1 from the plan\"; Antigravity /plan, /planning, implementation-plan artifacts reviewed with Ctrl+R or /artifact, artifactReviewPolicy, /grill-me."
+expected_artifacts = "shared/templates (SPEC.md, PLAN.md, progress.md, feature_list.json, ADR.md); skills spec-interview, plan-feature, review-plan; shared/scripts/check_plan.py (every path in the steps is in the tree, every step has a check); per CLI a short always-on rule on when to plan and a plan-reviewer subagent."
+acceptance = "In the target CLI, the skills produce a SPEC.md and a PLAN.md for a toy feature; check_plan passes; a fresh-context reviewer finds no gaps; after compaction the plan is still followed."
+[spec-plan-engineering.ja]
+scope = "作る前に決めること。仕様書（何を、なぜ、対象外、検証）と計画（ファイル、ステップ、チェック）を、会話より長生きし、実装中の正となるファイルとして扱う。インタビュー → 仕様 → 計画 → 実装 → 検証の引き継ぎ。計画の同期。ADR。"
+research_focus = "エージェントがよく従う仕様・計画の形式。CLI ごとのプランモードと、計画がコンパクションをどう乗り切るか。インタビューの技法。タスクの粒度。確認可能な受け入れ基準。JSON の機能リスト。新しいコンテキストでの計画レビュー。計画を省いてよい場合。"
+starting_points = "Claude Code のプランモード（Shift+Tab、--permission-mode plan）、Ctrl+G、コンパクション後の計画ファイル再注入、/goal、AskUserQuestion。Codex の /plan、/goal、「計画のマイルストーン 1 を実装して」。Antigravity の /plan、/planning、Ctrl+R や /artifact でレビューする実装計画アーティファクト、artifactReviewPolicy、/grill-me。"
+expected_artifacts = "shared/templates（SPEC.md、PLAN.md、progress.md、feature_list.json、ADR.md）。スキル spec-interview、plan-feature、review-plan。shared/scripts/check_plan.py（ステップ内のすべてのパスがツリーにあり、すべてのステップにチェックがある）。CLI ごとに、いつ計画するかの短い常時ルールと、計画レビュアーのサブエージェント。"
+acceptance = "対象の CLI で、スキルがおもちゃの機能に対して SPEC.md と PLAN.md を生成する。check_plan が通る。新しいコンテキストのレビュアーが不足を見つけない。コンパクション後も計画に従っている。"
+
+[verification-eval-engineering]
+[verification-eval-engineering.en]
+scope = "Proving the work: checks the agent can run (tests, builds, lint, fixture diffs, screenshots), evidence over assertions, gates (goal conditions, Stop hooks), independent review in a fresh context, and evals for the agent layer itself (skills, rules, prompts: with/without baselines, trigger tests, regressions)."
+research_focus = "Verification strategies and how to express them in prompts; /goal evaluators and stalls; Stop-hook gates and caps; review commands; structured output for machine-checkable results; skill evals and benchmarks; eval case design and flakiness; visual verification; filtering test output."
+starting_points = "Claude Code /verify, /goal, Stop hook, verification subagent, /code-review, claude plugin eval, skill-creator, PreToolUse test-output filter, --output-format json; Codex /review, codex exec --output-schema, Stop hook; Antigravity artifact review, /goal, /browser screenshots, Stop and PostInvocation hooks (terminationBehavior)."
+expected_artifacts = "shared/evals (cases per skill: prompt, expected, grader); shared/scripts/run_evals; skills verify-change and review-against-plan; reviewer agents per CLI; a Stop-gate script; a test-output filter hook; an evidence section template for implementation documents."
+acceptance = "A with/without eval of the earlier skills with a results file; the Stop gate blocks a seeded failing state and releases it when fixed; a review-against-plan run on the previous discipline's implementation."
+[verification-eval-engineering.ja]
+scope = "成果を証明すること: エージェントが実行できるチェック（テスト、ビルド、リント、フィクスチャ差分、スクリーンショット）、主張ではなく証拠、ゲート（ゴール条件、Stop フック）、新しいコンテキストでの独立したレビュー、そしてエージェント層そのもの（スキル、ルール、プロンプト）の評価: あり・なしの基準線、発動テスト、回帰。"
+research_focus = "検証の戦略とプロンプトでの表現。/goal の評価器と停滞。Stop フックのゲートと上限。レビューコマンド。機械で確認できる結果のための構造化出力。スキルの評価とベンチマーク。評価ケースの設計と不安定さ。見た目の検証。テスト出力のフィルタ。"
+starting_points = "Claude Code の /verify、/goal、Stop フック、検証用サブエージェント、/code-review、claude plugin eval、skill-creator、PreToolUse によるテスト出力フィルタ、--output-format json。Codex の /review、codex exec --output-schema、Stop フック。Antigravity のアーティファクトレビュー、/goal、/browser のスクリーンショット、Stop と PostInvocation フック（terminationBehavior）。"
+expected_artifacts = "shared/evals（スキルごとのケース: プロンプト、期待値、採点器）。shared/scripts/run_evals。スキル verify-change と review-against-plan。CLI ごとのレビュアーエージェント。Stop ゲートのスクリプト。テスト出力フィルタのフック。実装文書用の証拠セクションのテンプレート。"
+acceptance = "以前のスキルのあり・なし評価と結果ファイル。Stop ゲートが仕込んだ失敗状態を止め、修正後に解放する。前の分野の実装に対する review-against-plan の実行。"
+
+[tool-engineering]
+[tool-engineering.en]
+scope = "What the agent can do: MCP servers, CLI wrappers and skill scripts with clear, non-overlapping descriptions; bounded and filtered output; safe defaults; allowlists; discovery cost."
+research_focus = "Tool design (self-contained, robust to error, clear intended use, no overlap); MCP setup per CLI; catalog cost and deferral; output limits and filters; CLI vs MCP trade-offs; actionable error messages; idempotency and dry-run flags; per-agent tool restriction; secrets for tools; testing tools in isolation."
+starting_points = "Claude Code claude mcp add, deferred MCP schemas and tool search (ENABLE_TOOL_SEARCH), /mcp, code-intelligence plugins, PreToolUse updatedInput, skill allowed-tools; Codex codex mcp add, mcp_servers.<id> (enabled_tools, tool_timeout_sec, output_token_limit), tool_output_token_limit, skill MCP dependencies in agents/openai.yaml; Antigravity .agents/mcp_config.json, /mcp, subagent tools and mcpServers, sidecars."
+expected_artifacts = "shared/tools/<tool> (an MCP server or CLI wrapper with README, schema and tests); an author-tool skill with a tool-description style guide; output filter scripts; per-CLI MCP configs and allowlists."
+acceptance = "The tool is discovered in the CLI (/mcp); a scenario uses it; output stays under the configured limit; a bad input returns an actionable error."
+[tool-engineering.ja]
+scope = "エージェントができること: 明確で重複のない説明を持つ MCP サーバー、CLI ラッパー、スキルのスクリプト。上限のある、絞られた出力。安全な既定値。許可リスト。発見のコスト。"
+research_focus = "ツールの設計（自己完結、エラーに強い、用途が明確、重複なし）。CLI ごとの MCP 設定。一覧のコストと遅延読み込み。出力の上限とフィルタ。CLI と MCP のトレードオフ。対処できるエラーメッセージ。冪等性と dry-run フラグ。エージェントごとのツール制限。ツール用の秘密情報。ツール単体のテスト。"
+starting_points = "Claude Code の claude mcp add、MCP スキーマの遅延読み込みとツール検索（ENABLE_TOOL_SEARCH）、/mcp、コードインテリジェンスプラグイン、PreToolUse の updatedInput、スキルの allowed-tools。Codex の codex mcp add、mcp_servers.<id>（enabled_tools、tool_timeout_sec、output_token_limit）、tool_output_token_limit、agents/openai.yaml でのスキルの MCP 依存。Antigravity の .agents/mcp_config.json、/mcp、サブエージェントの tools と mcpServers、サイドカー。"
+expected_artifacts = "shared/tools/<tool>（README、スキーマ、テスト付きの MCP サーバーまたは CLI ラッパー）。ツール記述のスタイルガイドを持つ author-tool スキル。出力フィルタのスクリプト。CLI ごとの MCP 設定と許可リスト。"
+acceptance = "ツールが CLI で認識される（/mcp）。シナリオがそれを使う。出力が設定した上限内に収まる。不正な入力に対処可能なエラーが返る。"
+
+[harness-guardrail-engineering]
+[harness-guardrail-engineering.en]
+scope = "Deterministic boundaries: hooks, permission modes, sandboxes, deny rules, approval policies; defenses against prompt injection; secrets protection; the long-running harness (init script, feature list, progress, start-of-session routine)."
+research_focus = "Hook events and capabilities per CLI; permission and sandbox models and defaults; matching the mode to the blast radius; PreToolUse deny/allow/rewrite; Stop gates; handling untrusted content; managed enforcement; harness patterns for long runs; testing guardrails by attempting forbidden actions."
+starting_points = "Claude Code hooks (PreToolUse, PostToolUse, Stop, SessionStart, SessionEnd, InstructionsLoaded), permission modes, /permissions, /sandbox, permissions.deny Read(...) rules, managed settings, disableSkillShellExecution; Codex --sandbox, approval_policy, hooks incl. PermissionRequest, requirements.toml, memories.disable_on_external_context; Antigravity toolPermission, enableTerminalSandbox, /permissions, artifactReviewPolicy, hooks (PreToolUse, PostToolUse, PreInvocation, PostInvocation, Stop), commandExecutionPolicy."
+expected_artifacts = "Per-CLI hook configs using scripts in shared/hooks; permission presets (development, CI, unattended); init.sh; a guardrail test suite in shared/evals/guardrails; a short always-on injection-defense rule; a secrets-scanning hook."
+acceptance = "Forbidden actions (write to a protected path, push to main, read a secret file) are blocked with evidence; the allowed workflow still passes; the unattended preset completes a scenario without prompts."
+[harness-guardrail-engineering.ja]
+scope = "決定論的な境界: フック、権限モード、サンドボックス、deny ルール、承認ポリシー。プロンプトインジェクションへの対策。秘密情報の保護。長時間実行のハーネス（初期化スクリプト、機能リスト、進捗、セッション開始時の手順）。"
+research_focus = "CLI ごとのフックのイベントと能力。権限とサンドボックスのモデルと既定値。影響範囲に合わせたモード選択。PreToolUse の拒否・許可・書き換え。Stop ゲート。信頼できない内容の扱い。管理による強制。長時間実行のハーネスパターン。禁止操作を試みてガードレールをテストすること。"
+starting_points = "Claude Code のフック（PreToolUse、PostToolUse、Stop、SessionStart、SessionEnd、InstructionsLoaded）、権限モード、/permissions、/sandbox、permissions.deny の Read(...) ルール、管理設定、disableSkillShellExecution。Codex の --sandbox、approval_policy、PermissionRequest を含むフック、requirements.toml、memories.disable_on_external_context。Antigravity の toolPermission、enableTerminalSandbox、/permissions、artifactReviewPolicy、フック（PreToolUse、PostToolUse、PreInvocation、PostInvocation、Stop）、commandExecutionPolicy。"
+expected_artifacts = "shared/hooks のスクリプトを使う CLI ごとのフック設定。権限プリセット（開発、CI、無人）。init.sh。shared/evals/guardrails のガードレールテスト。短い常時のインジェクション対策ルール。秘密情報スキャンのフック。"
+acceptance = "禁止操作（保護されたパスへの書き込み、main への push、秘密ファイルの読み取り）が証拠付きで止められる。許可された作業はそのまま通る。無人プリセットがプロンプトなしでシナリオを完了する。"
+
+[observability-engineering]
+[observability-engineering.en]
+scope = "Seeing what agents do and cost: context usage, tokens and cost, tool calls, skill activations, hooks firing, sessions; exported logs and metrics; reports."
+research_focus = "Built-in views per CLI; metric and log export and their attributes; hooks as log emitters; transcript formats and their instability; cost attribution; debug logs; privacy and redaction; dashboards and periodic reports."
+starting_points = "Claude Code /context, /usage, /insights, status line, OpenTelemetry (skill_activated, OTEL_LOG_TOOL_DETAILS=1), hook transcript_path, /export, --debug-file; Codex /status, TUI context percentage, history.jsonl (history.persistence, history.max_bytes), log_dir, hooks; Antigravity /context, /usage, /statusline, /tasks, Ctrl+O, enableTelemetry, hooks."
+expected_artifacts = "Logging hooks writing JSONL events to .ae/logs; status-line configs; telemetry config snippets; shared/scripts/report_usage (by skill, tool, session); a report template; redaction rules."
+acceptance = "A scenario produces an event log; the report shows skills activated, tools called and tokens; the status line shows context usage."
+[observability-engineering.ja]
+scope = "エージェントの動きとコストを見ること: コンテキスト使用量、トークンとコスト、ツール呼び出し、スキルの発動、フックの発火、セッション。ログとメトリクスのエクスポート。レポート。"
+research_focus = "CLI ごとの組み込みビュー。メトリクスとログのエクスポートとその属性。ログ発生源としてのフック。トランスクリプトの形式とその不安定さ。コストの帰属。デバッグログ。プライバシーと秘匿化。ダッシュボードと定期レポート。"
+starting_points = "Claude Code の /context、/usage、/insights、ステータスライン、OpenTelemetry（skill_activated、OTEL_LOG_TOOL_DETAILS=1）、フックの transcript_path、/export、--debug-file。Codex の /status、TUI のコンテキスト使用率、history.jsonl（history.persistence、history.max_bytes）、log_dir、フック。Antigravity の /context、/usage、/statusline、/tasks、Ctrl+O、enableTelemetry、フック。"
+expected_artifacts = ".ae/logs に JSONL イベントを書くログ用フック。ステータスラインの設定。テレメトリ設定の断片。shared/scripts/report_usage（スキル別、ツール別、セッション別）。レポートのテンプレート。秘匿化のルール。"
+acceptance = "シナリオがイベントログを生成する。レポートに発動したスキル、呼ばれたツール、トークンが表示される。ステータスラインにコンテキスト使用量が出る。"
+
+[loop-engineering]
+[loop-engineering.en]
+scope = "Iterating and running unattended: run-until-check-passes loops, goal conditions, scheduled and recurring runs, headless batches, stall detection, turn and budget caps, idempotent re-runs and resumption."
+research_focus = "/goal semantics and stalls; Stop-gate caps; scheduled tasks and /loop; /schedule and sidecar schedules; Codex Automations; headless loops with caps; resume after failure; idempotency; loop telemetry; cost of background turns."
+starting_points = "Claude Code /goal, Stop hook, /loop, scheduled tasks, claude -p with --permission-mode dontAsk and --allowedTools, --max-turns, --max-budget-usd, /batch; Codex /goal, codex exec (resume --last, --json, --output-schema), Stop hook, Automations; Antigravity /goal, /schedule, sidecars (builtin schedule, agentapi new-conversation), agy -p --cwd."
+expected_artifacts = "shared/loops (a bounded runner: check → fix → re-check with caps); goal templates; schedule examples; stall and budget guards; a run-until-green skill."
+acceptance = "A loop fixes a seeded failing test unattended within caps and stops; a loop that cannot succeed stops at the cap with a report; a scheduled run executes once and logs."
+[loop-engineering.ja]
+scope = "反復と無人実行: チェックが通るまで回すループ、ゴール条件、スケジュールされた定期実行、ヘッドレスのバッチ、停滞の検出、ターンと予算の上限、冪等な再実行と再開。"
+research_focus = "/goal の意味論と停滞。Stop ゲートの上限。スケジュール済みタスクと /loop。/schedule とサイドカーのスケジュール。Codex の Automations。上限付きのヘッドレスループ。失敗後の再開。冪等性。ループのテレメトリ。バックグラウンドのターンのコスト。"
+starting_points = "Claude Code の /goal、Stop フック、/loop、スケジュール済みタスク、--permission-mode dontAsk と --allowedTools を付けた claude -p、--max-turns、--max-budget-usd、/batch。Codex の /goal、codex exec（resume --last、--json、--output-schema）、Stop フック、Automations。Antigravity の /goal、/schedule、サイドカー（builtin schedule、agentapi new-conversation）、agy -p --cwd。"
+expected_artifacts = "shared/loops（上限付きの実行器: チェック → 修正 → 再チェック）。ゴールのテンプレート。スケジュールの例。停滞と予算のガード。run-until-green スキル。"
+acceptance = "仕込んだ失敗テストをループが無人で上限内に直して止まる。成功できないループが上限で止まりレポートを出す。スケジュール実行が 1 回動いてログを残す。"
+
+[graph-engineering]
+[graph-engineering.en]
+scope = "Making structure explicit: task DAGs with dependencies and gates; workflow graphs whose nodes are agent steps, with checkpoints for resume; structural graphs of the codebase (dependency, call, ownership) used for partitioning, impact analysis and routing."
+research_focus = "DAG and workflow primitives per CLI; DAGs as data; checkpointing and resuming partial graphs; conditional routing and decision gates; code graphs from language servers or dependency extraction; partition-by-path derived from graphs; rendering (Mermaid); nesting and concurrency limits."
+starting_points = "Claude Code dynamic workflows (pipeline, parallel, phases), /batch, subagents, worktrees, code-intelligence plugins; Codex subagents (agents.max_concurrent_threads_per_session), /agent; Antigravity invoke_subagent (depth limit 10), /agents, SDK subagents and lifecycle hooks, sidecars."
+expected_artifacts = "shared/graphs (DAG schema and examples); a runner that executes a DAG through the CLI's headless mode with checkpoints; shared/scripts/code_graph (dependency graph → partition suggestions); a plan-to-dag skill; Mermaid rendering."
+acceptance = "A 4–6-node DAG with one gate runs end to end, can be interrupted and resumed, and is rendered; the code graph proposes disjoint partitions for a sample change."
+[graph-engineering.ja]
+scope = "構造を明示すること: 依存関係とゲートを持つタスク DAG。ノードがエージェントのステップで、チェックポイントで再開できるワークフローグラフ。分割、影響分析、振り分けに使うコードベースの構造グラフ（依存、呼び出し、所有）。"
+research_focus = "CLI ごとの DAG・ワークフローのプリミティブ。データとしての DAG。部分的に完了したグラフのチェックポイントと再開。条件分岐と判断ゲート。言語サーバーや依存抽出によるコードグラフ。グラフから導くパスによる分割。描画（Mermaid）。ネストと同時実行数の上限。"
+starting_points = "Claude Code のダイナミックワークフロー（pipeline、parallel、フェーズ）、/batch、サブエージェント、worktree、コードインテリジェンスプラグイン。Codex のサブエージェント（agents.max_concurrent_threads_per_session）、/agent。Antigravity の invoke_subagent（深さ上限 10）、/agents、SDK のサブエージェントとライフサイクルフック、サイドカー。"
+expected_artifacts = "shared/graphs（DAG のスキーマと例）。CLI のヘッドレスモードを通じて DAG をチェックポイント付きで実行する実行器。shared/scripts/code_graph（依存グラフ → 分割の提案）。plan-to-dag スキル。Mermaid による描画。"
+acceptance = "ゲートを 1 つ持つ 4〜6 ノードの DAG がエンドツーエンドで動き、中断と再開ができ、描画される。コードグラフがサンプルの変更に対して重ならない分割を提案する。"
+
+[multi-agent-orchestration]
+[multi-agent-orchestration.en]
+scope = "Coordinator and worker structures: agent roles and definitions, delegation prompts with structured returns, partitioning by path, worktree isolation, Writer/Reviewer, fan-out and fan-in, messaging between sessions, concurrency and cost controls."
+research_focus = "Subagent models per CLI (what they inherit, what returns); concurrency limits; worktree isolation; agent teams and teamwork previews; cross-session messaging; failure modes (conflicting edits, recursion, cost blow-up); when sequential beats parallel."
+starting_points = "Claude Code .claude/agents (tools, model, memory), /batch, worktrees (worktree.sparsePaths), cross-session messaging, agent teams (experimental), claude agents, Writer/Reviewer; Codex default, worker, explorer, .codex/agents/*.toml, agents.max_concurrent_threads_per_session, /agent; Antigravity .agents/agents/*.md, invoke_subagent, /agents, /teamwork-preview."
+expected_artifacts = "Agent definitions per CLI (researcher, implementer, reviewer, verifier); an orchestrate skill (decompose → partition by path → dispatch → collect → merge); return-format schemas; worktree configs; a cost guard (max agents, model per role)."
+acceptance = "A change spanning two disjoint paths completes through two workers and one reviewer without conflicting edits; a per-agent token report is produced."
+[multi-agent-orchestration.ja]
+scope = "コーディネーターとワーカーの構造: エージェントの役割と定義、構造化された返り値を伴う委任プロンプト、パスによる分割、worktree による隔離、Writer/Reviewer、ファンアウトとファンイン、セッション間のメッセージ、同時実行数とコストの制御。"
+research_focus = "CLI ごとのサブエージェントのモデル（何を引き継ぎ、何が返るか）。同時実行数の上限。worktree による隔離。エージェントチームとチームワークのプレビュー。セッション間メッセージ。失敗モード（編集の衝突、再帰、コストの暴走）。逐次が並列に勝る場面。"
+starting_points = "Claude Code の .claude/agents（tools、model、memory）、/batch、worktree（worktree.sparsePaths）、セッション間メッセージ、エージェントチーム（実験的）、claude agents、Writer/Reviewer。Codex の default、worker、explorer、.codex/agents/*.toml、agents.max_concurrent_threads_per_session、/agent。Antigravity の .agents/agents/*.md、invoke_subagent、/agents、/teamwork-preview。"
+expected_artifacts = "CLI ごとのエージェント定義（調査役、実装役、レビュアー、検証役）。orchestrate スキル（分解 → パスで分割 → 配分 → 回収 → 統合）。返り値形式のスキーマ。worktree の設定。コストガード（最大エージェント数、役割ごとのモデル）。"
+acceptance = "重ならない 2 つのパスにまたがる変更が、2 つのワーカーと 1 つのレビュアーで、編集の衝突なしに完了する。エージェントごとのトークンレポートが出る。"
+
+[production-engineering]
+[production-engineering.en]
+scope = "Running agent workflows where others depend on them: CI integration, secrets and environments, versioning and distribution (plugins, marketplaces, managed settings), cost governance, reliability, audit trails, security review, change management for model upgrades, runbooks and ownership, installing the toolkit into target repositories."
+research_focus = "Headless and CI modes and output formats per CLI; GitHub Actions integration; secrets handling; cloud environments; managed settings and plugin policies; rate limits and budgets; telemetry for attribution; versioned releases of skills and plugins; re-audit after model upgrades; installation layout."
+starting_points = "Claude Code claude -p (--output-format json|stream-json, --permission-mode dontAsk|auto, --allowedTools, --no-session-persistence, --max-budget-usd), managed settings, plugins and marketplaces (enabledPlugins), OpenTelemetry; Codex codex exec (--json, --output-last-message, --ephemeral, --sandbox), the Codex GitHub Action, no job-level OPENAI_API_KEY where untrusted code runs, requirements.toml; Antigravity headless mode (agy -p), plugin sync, Remote Control, enterprise docs."
+expected_artifacts = "CI workflow examples per CLI; an environments-and-secrets guide; a release process that packages shared/ as plugins; a production permission preset; budget configs; runbooks; a production-readiness checklist; an install script for target repositories."
+acceptance = "A CI job runs a headless verification with structured output and fails on a seeded defect; the plugin installs into a fresh clone; the readiness checklist is completed with evidence."
+[production-engineering.ja]
+scope = "他者が依存する場所でエージェントのワークフローを動かすこと: CI 連携、秘密情報と環境、バージョン管理と配布（プラグイン、マーケットプレイス、管理設定）、コストの統制、信頼性、監査証跡、セキュリティレビュー、モデル更新時の変更管理、手順書と担当者、対象リポジトリへのツールキットの導入。"
+research_focus = "CLI ごとのヘッドレス・CI モードと出力形式。GitHub Actions との連携。秘密情報の扱い。クラウド環境。管理設定とプラグインのポリシー。レート制限と予算。帰属のためのテレメトリ。スキルとプラグインのバージョン付きリリース。モデル更新後の再監査。導入のレイアウト。"
+starting_points = "Claude Code の claude -p（--output-format json|stream-json、--permission-mode dontAsk|auto、--allowedTools、--no-session-persistence、--max-budget-usd）、管理設定、プラグインとマーケットプレイス（enabledPlugins）、OpenTelemetry。Codex の codex exec（--json、--output-last-message、--ephemeral、--sandbox）、Codex GitHub Action、信頼できないコードが動くジョブでジョブレベルの OPENAI_API_KEY を使わないこと、requirements.toml。Antigravity のヘッドレスモード（agy -p）、プラグインの同期、Remote Control、エンタープライズのドキュメント。"
+expected_artifacts = "CLI ごとの CI ワークフローの例。環境と秘密情報のガイド。shared/ をプラグインとしてパッケージ化するリリース手順。本番用の権限プリセット。予算の設定。手順書。本番準備チェックリスト。対象リポジトリへの導入スクリプト。"
+acceptance = "CI ジョブがヘッドレスの検証を構造化出力で実行し、仕込んだ欠陥で失敗する。プラグインが新しいクローンにインストールできる。準備チェックリストが証拠付きで完了する。"
