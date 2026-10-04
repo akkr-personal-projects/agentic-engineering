@@ -1,0 +1,42 @@
+# Agentic Engineering prompt list: settings
+# Run: python3 tools/agentic-prompts/generate.py
+# Writes every prompt for one CLI, in order, into one file.
+# （1 つの CLI 向けに、全ステップのプロンプトを順番に 1 ファイルへ出力します）
+
+# Target CLI (対象の CLI): "claude-code" | "codex" | "antigravity"
+cli = "claude-code"
+
+# Prompt language (プロンプトの言語): "ja" | "en"
+language = "ja"
+
+# Output file (出力ファイル)
+output = "prompts/agentic-engineering-prompts.claude-code.ja.md"
+
+# Maximum size of one output file in KiB (1 ファイルの上限サイズ, KiB)
+# Larger output is split at heading boundaries (never inside a code block or table) into
+# <name>.part-01.ja.md, <name>.part-02.ja.md, ...; the output file becomes a table of contents
+# with links to the parts. Also used by mdsplit.py as its default limit.
+max_file_kib = 400
+
+# Cross-cutting methods (横断的な手法), in order.
+# Research only. Every later method reads them and applies them.
+cross_cutting = [
+  "Prompt Engineering",
+  "Context Engineering",
+  "Memory Engineering",
+  "Knowledge Engineering",
+]
+
+# Other methods (その他の手法), in order.
+# Each gets: -1 research → -2 plan → -3 implement and summarize.
+methods = [
+  "Spec / Plan Engineering",
+  "Verification / Eval Engineering",
+  "Tool Engineering",
+  "Harness / Guardrail Engineering",
+  "Observability Engineering",
+  "Loop Engineering",
+  "Graph Engineering",
+  "Multi-Agent Orchestration",
+  "Production Engineering",
+]
